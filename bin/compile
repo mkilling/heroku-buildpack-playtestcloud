@@ -21,12 +21,18 @@ function indent() {
 BUILD_DIR=$1
 CACHE_DIR=$2
 
+echo "Amending profile script for ffmpeg" | indent
+cat <<EOF >$BUILD_DIR/.profile.d/001_ffmpeg.sh
+export PATH="\$HOME/.apt/opt/ffmpeg/bin:\$PATH"
+EOF
+
+
 topic "Install wav2png"
 cd $BUILD_DIR
 git clone https://github.com/playtestcloud/wav2png | indent
 cd wav2png/build
 make all | indent
 echo "Amending profile script for wav2png" | indent
-cat <<EOF >$BUILD_DIR/.profile.d/002_apt.sh
+cat <<EOF >$BUILD_DIR/.profile.d/002_wav2png.sh
 export PATH="\$HOME/wav2png/bin/Linux:\$PATH"
 EOF
