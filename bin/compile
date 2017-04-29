@@ -21,6 +21,30 @@ function indent() {
 BUILD_DIR=$1
 CACHE_DIR=$2
 
+topic "Preparing APT"
+APT_CACHE_DIR="$CACHE_DIR/apt/cache"
+APT_STATE_DIR="$CACHE_DIR/apt/state"
+SOURCES_LIST_PATH="$CACHE_DIR/apt/sources.list"
+APT_KEYRING_PATH="$CACHE_DIR/apt/trusted.gpg"
+
+mkdir -p "$APT_CACHE_DIR/archives/partial"
+mkdir -p "$APT_STATE_DIR/lists/partial"
+cp /etc/apt/sources.list $SOURCES_LIST_PATH
+cp /etc/apt/trusted.gpg $APT_KEYRING_PATH
+
+APT_OPTIONS="-y -o debug::nolocking=true -o dir::cache=$APT_CACHE_DIR -o dir::state=$APT_STATE_DIR -o Dir::Etc::SourceList=$SOURCES_LIST_PATH -o Dir::Etc::Trusted=$APT_KEYRING_PATH"
+apt-key --keyring $APT_KEYRING_PATH adv --keyserver keyserver.ubuntu.com --recv-keys 90BD7EACED8E640A | indent
+
+printf "\ndeb http://ppa.launchpad.net/mc3man/trusty-media/ubuntu trusty main" >> $SOURCES_LIST_PATH
+apt-get $APT_OPTIONS update | indent
+
+apt-get $APT_OPTIONS -d install --reinstall libasound2 libass5 libfdk-aac1 libgnutls26 libmp3lame0 libopencore-amrnb0 libopencore-amrwb0 libopus0 libpulse0 libsdl2-2.0-0 libsoxr0 libspeex1 libva-drm1 libva-x11-1 libva1 libvdpau1 libvidstab1.0 libvorbis0a libvorbisenc2 libwavpack1 libx264-148 libx265-102 libxcb-shape0 libxcb-xfixes0 libxv1 libxvidcore4 | indent
+
+for DEB in $(ls -1 $APT_CACHE_DIR/archives/*.deb); do
+  echo "Installing $(basename $DEB)" | indent
+  dpkg -x $DEB $BUILD_DIR/.apt/ | indent
+done
+
 echo "Amending profile script for ffmpeg" | indent
 cat <<EOF >$BUILD_DIR/.profile.d/001_ffmpeg.sh
 export PATH="\$HOME/.apt/opt/ffmpeg/bin:\$PATH"
