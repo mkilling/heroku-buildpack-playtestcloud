@@ -67,7 +67,7 @@ export | grep -E -e ' (PATH|LD_LIBRARY_PATH|LIBRARY_PATH|INCLUDE_PATH|CPATH|CPPP
 topic "Install ffmpeg"
 printf "\ndeb http://ppa.launchpad.net/mc3man/trusty-media/ubuntu trusty main" >> $SOURCES_LIST_PATH
 apt-get $APT_OPTIONS update | indent
-apt-get $APT_OPTIONS -d install --reinstall ffmpeg=7:3.2.2+git~trusty | indent
+apt-get $APT_OPTIONS -d install --reinstall ffmpeg=3.2.2 | indent
 for DEB in $(ls -1 $APT_CACHE_DIR/archives/*.deb); do
   echo "Installing $(basename $DEB)" | indent
   dpkg -x $DEB $BUILD_DIR/.apt/ | indent
